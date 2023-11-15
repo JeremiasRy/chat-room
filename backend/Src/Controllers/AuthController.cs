@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Src.Controllers;
 [Route("/api/v1/[controller]")]
 [ApiController]
+[AllowAnonymous]
 public class AuthController : ControllerBase
 {
     [HttpGet("login")]
@@ -14,10 +16,11 @@ public class AuthController : ControllerBase
         var properties = new AuthenticationProperties() { RedirectUri = redirectUrl };
         return Challenge(properties, "Google");
     }
-    [HttpGet("loginSuccess")]
-    public async Task<IActionResult> ExternalLoginCallback() 
+    [HttpGet("login-success-callback")]
+    public async Task<IActionResult> LoginSuccessCallback() 
     {
         var info = await HttpContext.AuthenticateAsync("Google");
+        // Do some work here
         return Ok(new { Message = "Authentication Successful" });
     }
 }
