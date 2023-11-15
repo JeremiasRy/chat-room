@@ -10,18 +10,14 @@ public class AuthController : ControllerBase
     [HttpGet("login")]
     public IActionResult Login() 
     {
-        var redirectUrl = Url.Action("externalLoginCallback", "Auth", null, Request.Scheme);
+        var redirectUrl = Url.Action("loginSuccess", "Auth", null, Request.Scheme);
         var properties = new AuthenticationProperties() { RedirectUri = redirectUrl };
         return Challenge(properties, "Google");
     }
-    [HttpGet("externalLoginCallback")]
+    [HttpGet("loginSuccess")]
     public async Task<IActionResult> ExternalLoginCallback() 
     {
         var info = await HttpContext.AuthenticateAsync("Google");
-        if (info.Succeeded)
-        {
-            return Ok(new { Message = "Authentication Succesfull" });
-        }
-        return Unauthorized();
+        return Ok(new { Message = "Authentication Successful" });
     }
 }
