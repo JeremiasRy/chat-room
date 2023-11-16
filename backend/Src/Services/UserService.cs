@@ -1,6 +1,5 @@
-﻿namespace backend.Src.Services
+﻿namespace backend.Src.Services;
+
+public class UserService
 {
-    public class UserService
-    {
-    }
 }
