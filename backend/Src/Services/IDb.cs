@@ -1,4 +1,4 @@
-﻿namespace backend.Src;
+﻿namespace backend.Src.Services;
 
 public interface IDb
 {

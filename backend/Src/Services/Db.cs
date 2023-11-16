@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using Npgsql;
 
-namespace backend.Src;
+namespace backend.Src.Services;
 
 public class Db : IDb
 {
@@ -18,9 +18,9 @@ public class Db : IDb
         using var connection = new NpgsqlConnection(connectionString);
         return await connection.QueryAsync<TModel>(GetDbFunctionName(procedure), parameters, commandType: System.Data.CommandType.StoredProcedure);
     }
-    static string GetDbFunctionName(DbFunction procedure)
+    string GetDbFunctionName(DbFunction procedure)
     {
-        return (procedure) switch
+        return procedure switch
         {
             DbFunction.CreateUser => "create_user",
             DbFunction.CreateMessage => "create_message",

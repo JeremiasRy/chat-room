@@ -1,14 +1,11 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.CookiePolicy;
-using Microsoft.AspNetCore.Identity;
-using System.Globalization;
+using backend.Src.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 var services = builder.Services;
-
-services.AddControllers();
 
 services
     .AddAuthentication(options =>
@@ -29,6 +26,12 @@ services.Configure<CookiePolicyOptions>(options =>
     options.MinimumSameSitePolicy = SameSiteMode.None;
     options.HttpOnly = HttpOnlyPolicy.None;
 });
+
+services.AddControllers();
+
+services.AddScoped<IDb, Db>();
+services.AddScoped<IUserService, UserService>();
+
 
 var app = builder.Build();
 

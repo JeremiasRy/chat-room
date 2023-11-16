@@ -5,7 +5,7 @@ CREATE TABLE chat_user (
     id UUID PRIMARY KEY,
     created_at TIMESTAMP default CURRENT_TIMESTAMP,
     updated_at TIMESTAMP default CURRENT_TIMESTAMP,
-    name TEXT NOT NULL,
+    name TEXT NOT NULL UNIQUE,
     online BOOLEAN NOT NULL default false,
     last_login_time TIMESTAMP NOT NULL default CURRENT_TIMESTAMP
 );
@@ -47,17 +47,18 @@ EXECUTE FUNCTION updated_at_stamp();
 /* CREATE CHAT USER AND MESSAGE */
 
 CREATE OR REPLACE FUNCTION create_user(
-    p_name TEXT
+    p_name TEXT,
+    out created_id UUID
 )
-RETURNS UUID
 AS $$
-DECLARE
-    user_id UUID;
 BEGIN
+    IF EXISTS (SELECT 1 FROM chat_user WHERE name = p_name) THEN
+        created_id := NULL;
+        RETURN;
+    END IF;
     INSERT INTO chat_user (id, name, online)
     VALUES (uuid_generate_v4(), p_name, true)
-    RETURNING id INTO user_id;
-    RETURN user_id;
+    RETURNING id INTO created_id;
 END;
 $$ LANGUAGE plpgsql;
 
