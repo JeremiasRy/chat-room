@@ -47,18 +47,13 @@ EXECUTE FUNCTION updated_at_stamp();
 /* CREATE CHAT USER AND MESSAGE */
 
 CREATE OR REPLACE FUNCTION create_user(
-    p_name TEXT,
-    out created_id UUID
+    p_name TEXT
 )
+RETURNS VOID
 AS $$
 BEGIN
-    IF EXISTS (SELECT 1 FROM chat_user WHERE name = p_name) THEN
-        created_id := NULL;
-        RETURN;
-    END IF;
     INSERT INTO chat_user (id, name, online)
-    VALUES (uuid_generate_v4(), p_name, true)
-    RETURNING id INTO created_id;
+    VALUES (uuid_generate_v4(), p_name, true);
 END;
 $$ LANGUAGE plpgsql;
 
@@ -66,16 +61,11 @@ CREATE OR REPLACE FUNCTION create_message(
     p_user_id UUID,
     p_content TEXT
 )
-RETURNS UUID
+RETURNS VOID
 AS $$
-DECLARE
-    message_id UUID;
 BEGIN
     INSERT INTO message (id, user_id, content)
-    VALUES (uuid_generate_v4(), p_user_id, p_content)
-    RETURNING id INTO message_id;
-
-    RETURN message_id;
+    VALUES (uuid_generate_v4(), p_user_id, p_content);
 END;
 $$ LANGUAGE plpgsql;
 
@@ -141,7 +131,8 @@ $$ LANGUAGE plpgsql;
 
 /* GET USER */
 CREATE OR REPLACE FUNCTION get_chat_user(
-    p_id UUID
+    p_id UUID,
+    p_name TEXT
 )
 RETURNS TABLE (
         id UUID,
@@ -174,7 +165,8 @@ BEGIN
     LEFT JOIN
         message ON chat_user.id = message.user_id
     WHERE
-        chat_user.id = p_id
+        (chat_user.id = p_id OR p_id IS NULL)
+        AND (chat_user.name = p_name OR p_name IS NULL)
     ORDER BY
         message.created_at DESC;
 END;

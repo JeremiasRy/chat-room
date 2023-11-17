@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace backend.Src.Controllers;
-
+[Route("/api/v1/[controller]")]
+[ApiController]
 [Authorize(Policy = "RequireGoogleAuthentication")]
 public class UserController : ControllerBase
 {
@@ -19,7 +20,7 @@ public class UserController : ControllerBase
     {
         if (Guid.TryParse(User.FindFirstValue("user_id"), out Guid userId))
         {
-            return await _userService.GetUser(userId);
+            return await _userService.GetUserAsync(userId);
         }
         return null;
     }

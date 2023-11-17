@@ -38,13 +38,15 @@ public class AuthController : ControllerBase
         {
             return BadRequest();
         }
-
-        var result = await _userService.CreateUser(identity.Name!);
-        if (result is not null)
+        var userFromDb = await _userService.GetUserAsync(null, identity.Name);
+        if (userFromDb is null)
         {
-            ((ClaimsIdentity)identity).AddClaim(new Claim("user_id", result.Value.ToString()));
-            return Ok(new { Message = "Authentication succesfull and created user!" });
+            await _userService.CreateUserAsync(identity.Name!);
+            userFromDb = await _userService.GetUserAsync(null, identity.Name) ?? throw new Exception("Things shouldn't fail here?");
+            ((ClaimsIdentity)identity).AddClaim(new Claim("user_id", userFromDb.Id.ToString()));
+            await HttpContext.SignInAsync("Cookies", info.Principal!, info.Ticket.Properties);
         }
+        
         return Ok(new { Message = "Authentication Successful" });
     }
 }

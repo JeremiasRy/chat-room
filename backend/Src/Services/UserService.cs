@@ -1,5 +1,6 @@
-﻿using backend.Src.DTOs;
+﻿using backend.Src.Data;
 using backend.Src.Models;
+using System.Runtime.CompilerServices;
 
 namespace backend.Src.Services;
 
@@ -10,19 +11,22 @@ public class UserService : IUserService
     {
         _db = db;
     }
-    public async Task<Guid?> CreateUser(string name)
+    public async Task CreateUserAsync(string name)
     {
-        var result = await _db.CallDatabase<Guid?, dynamic>(Db.DbFunction.CreateUser, new { p_name = name });
+        await _db.SaveDataAsync<dynamic>(Db.DbSaveProcedures.CreateUser, new { p_name = name });
+    }
+    public async Task<ChatUser?> GetUserAsync(Guid? id = null, string? name = null)
+    {
+        var result = await _db.LoadDataAsync<ChatUser, dynamic>(Db.DbLoadProcedures.GetUser, new { p_id = id, p_name = name });
         return result.FirstOrDefault();
     }
-    public async Task<ChatUser?> GetUser(Guid id)
+    public async Task<List<string>> GetLoggedInUsersAsync()
     {
-        var result = await _db.CallDatabase<ChatUser?, dynamic>(Db.DbFunction.GetUser, new { p_id = id });
-        return result.FirstOrDefault();
-    }
-    public async Task<List<string>> GetLoggedInUsers()
-    {
-        var result = await _db.CallDatabase<string, dynamic>(Db.DbFunction.GetOnlineUsers, new { });
+        var result = await _db.LoadDataAsync<string, dynamic>(Db.DbLoadProcedures.GetOnlineUsers, new { });
         return result.ToList();
     } 
+    public async Task LoginUserAsync(Guid userId)
+    {
+        await _db.SaveDataAsync<dynamic>(Db.DbSaveProcedures.UserLogin, new { p_user_id = userId });
+    }
 }

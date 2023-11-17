@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.CookiePolicy;
 using backend.Src.Services;
+using backend.Src.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -38,12 +39,18 @@ services.Configure<CookiePolicyOptions>(options =>
 });
 
 services.AddControllers();
+services.AddSwaggerGen();
 
 services.AddScoped<IDb, Db>();
 services.AddScoped<IUserService, UserService>();
 
-
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseCookiePolicy();
 

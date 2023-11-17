@@ -4,6 +4,6 @@ namespace backend.Src.Services;
 
 public interface IUserService
 {
-    Task<Guid?> CreateUser(string name);
-    Task<ChatUser?> GetUser(Guid id);
+    Task CreateUserAsync(string name);
+    Task<ChatUser?> GetUserAsync(Guid? id = null, string? name = null);
 }
