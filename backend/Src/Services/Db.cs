@@ -18,7 +18,7 @@ public class Db : IDb
         using var connection = new NpgsqlConnection(connectionString);
         return await connection.QueryAsync<TModel>(GetDbFunctionName(procedure), parameters, commandType: System.Data.CommandType.StoredProcedure);
     }
-    string GetDbFunctionName(DbFunction procedure)
+    static string GetDbFunctionName(DbFunction procedure)
     {
         return procedure switch
         {
@@ -28,6 +28,7 @@ public class Db : IDb
             DbFunction.UserLogout => "user_logout",
             DbFunction.GetMessages => "get_paginated_messages_with_names",
             DbFunction.GetUser => "get_chat_user",
+            DbFunction.GetOnlineUsers => "get_online_users",
             _ => throw new ArgumentException($"{nameof(procedure)}, was not a valid db function")
         };
     }
@@ -40,5 +41,6 @@ public class Db : IDb
         UserLogout,
         GetMessages,
         GetUser,
+        GetOnlineUsers
     }
 }

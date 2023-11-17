@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection.Metadata.Ecma335;
+using System.Security.Claims;
 
 namespace backend.Src.Controllers;
 [Route("/api/v1/[controller]")]
@@ -41,6 +42,7 @@ public class AuthController : ControllerBase
         var result = await _userService.CreateUser(identity.Name!);
         if (result is not null)
         {
+            ((ClaimsIdentity)identity).AddClaim(new Claim("user_id", result.Value.ToString()));
             return Ok(new { Message = "Authentication succesfull and created user!" });
         }
         return Ok(new { Message = "Authentication Successful" });

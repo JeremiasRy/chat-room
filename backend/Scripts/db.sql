@@ -179,3 +179,17 @@ BEGIN
         message.created_at DESC;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_online_users() 
+returns table (
+    name text
+)
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT name
+    FROM chat_user
+    WHERE chat_user.online = true;
+END;
+$$ LANGUAGE plpgsql;
+

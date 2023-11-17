@@ -1,4 +1,5 @@
-﻿using backend.Src.Models;
+﻿using backend.Src.DTOs;
+using backend.Src.Models;
 
 namespace backend.Src.Services;
 
@@ -19,4 +20,9 @@ public class UserService : IUserService
         var result = await _db.CallDatabase<ChatUser?, dynamic>(Db.DbFunction.GetUser, new { p_id = id });
         return result.FirstOrDefault();
     }
+    public async Task<List<string>> GetLoggedInUsers()
+    {
+        var result = await _db.CallDatabase<string, dynamic>(Db.DbFunction.GetOnlineUsers, new { });
+        return result.ToList();
+    } 
 }

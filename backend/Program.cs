@@ -21,6 +21,16 @@ services
         options.ClientSecret = builder.Configuration["Auth:client_secret"];
     });
 
+services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireGoogleAuthentication", policy =>
+    {
+        policy.AuthenticationSchemes.Add(CookieAuthenticationDefaults.AuthenticationScheme);
+        policy.AuthenticationSchemes.Add(GoogleDefaults.AuthenticationScheme);
+        policy.RequireAuthenticatedUser();
+    });
+});
+
 services.Configure<CookiePolicyOptions>(options =>
 {
     options.MinimumSameSitePolicy = SameSiteMode.None;
@@ -38,6 +48,7 @@ var app = builder.Build();
 app.UseCookiePolicy();
 
 app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
