@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.CookiePolicy;
 using backend.Src.Services;
 using backend.Src.Data;
+using backend.Src.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -43,6 +43,9 @@ services
     .AddScoped<IUserService, UserService>()
     .AddScoped<IMessageService, MessageService>();
 
+services.AddSignalR();
+services.AddHttpContextAccessor();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -55,6 +58,8 @@ app.UseCookiePolicy();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseUserInformationMiddleware();
 
 app.MapControllers();
 

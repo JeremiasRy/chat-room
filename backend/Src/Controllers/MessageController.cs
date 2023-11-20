@@ -22,17 +22,4 @@ public class MessageController : ControllerBase
         var filter = new Pagination() { PageSize = pageSize, LastCreatedAt = lastCreatedAt };
         return await _service.GetMessagesAsync(filter);
     }
-    [HttpPost]
-    public async Task<IActionResult> CreateMessage(MessageDTO request)
-    {
-        if (Guid.TryParse(User.FindFirstValue("user_id"), out Guid userId))
-        {
-            if (userId == request.UserId)
-            {
-                await _service.CreateMessageAsync(request);
-                return Ok();
-            }
-        }
-        return Unauthorized();
-    }
 }

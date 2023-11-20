@@ -19,8 +19,16 @@ public class MessageService : IMessageService
         return result.ToList();
     }
 
-    public async Task CreateMessageAsync(MessageDTO message)
+    public async Task<bool> CreateMessageAsync(MessageDTO message)
     {
-        await _db.SaveDataAsync(Db.DbSaveProcedures.CreateMessage, new { p_user_id = message.UserId, p_content = message.Content });
+        try
+        {
+            await _db.SaveDataAsync(Db.DbSaveProcedures.CreateMessage, new { p_user_id = message.UserId, p_content = message.Content });
+            return true;
+        } catch
+        {
+            return false;
+        }
+        
     }
 }

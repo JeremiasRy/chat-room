@@ -1,6 +1,5 @@
 ﻿using backend.Src.Data;
 using backend.Src.Models;
-using System.Runtime.CompilerServices;
 
 namespace backend.Src.Services;
 
@@ -24,9 +23,13 @@ public class UserService : IUserService
     {
         var result = await _db.LoadDataAsync<string, dynamic>(Db.DbLoadProcedures.GetOnlineUsers, new { });
         return result.ToList();
-    } 
-    public async Task LoginUserAsync(Guid userId)
+    }
+    public async Task LoginUserAsync(Guid userId, string connectionId)
     {
-        await _db.SaveDataAsync<dynamic>(Db.DbSaveProcedures.UserLogin, new { p_user_id = userId });
+        await _db.SaveDataAsync<dynamic>(Db.DbSaveProcedures.UserLogin, new { p_user_id = userId, p_connection_id = connectionId });
+    }
+    public async Task LogoutUserAsync(Guid userId)
+    {
+        await _db.SaveDataAsync<dynamic>(Db.DbSaveProcedures.UserLogout, new { p_user_id = userId });
     }
 }

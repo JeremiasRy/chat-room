@@ -5,7 +5,7 @@ namespace backend.Src.Services
 {
     public interface IMessageService
     {
-        Task CreateMessageAsync(MessageDTO message);
+        Task<bool> CreateMessageAsync(MessageDTO message);
         Task<List<DisplayMessageDTO>> GetMessagesAsync(Pagination? pagination);
     }
 }
