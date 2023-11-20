@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace backend.Src.Controllers;
-[Route("/api/v1/[controller]")]
+[Route("/api/v1/[controller]s")]
 [ApiController]
 [Authorize(Policy = "RequireGoogleAuthentication")]
 public class UserController : ControllerBase

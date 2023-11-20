@@ -32,17 +32,16 @@ services.AddAuthorization(options =>
     });
 });
 
-services.Configure<CookiePolicyOptions>(options =>
+if (builder.Environment.IsDevelopment())
 {
-    options.MinimumSameSitePolicy = SameSiteMode.None;
-    options.HttpOnly = HttpOnlyPolicy.None;
-});
+    services.AddControllers();
+    services.AddSwaggerGen();
+}
 
-services.AddControllers();
-services.AddSwaggerGen();
-
-services.AddScoped<IDb, Db>();
-services.AddScoped<IUserService, UserService>();
+services
+    .AddScoped<IDb, Db>()
+    .AddScoped<IUserService, UserService>()
+    .AddScoped<IMessageService, MessageService>();
 
 var app = builder.Build();
 

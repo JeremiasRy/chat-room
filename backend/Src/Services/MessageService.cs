@@ -4,7 +4,7 @@ using backend.Src.Filters;
 
 namespace backend.Src.Services;
 
-public class MessageService
+public class MessageService : IMessageService
 {
     private readonly IDb _db;
     public MessageService(IDb db)
@@ -15,11 +15,12 @@ public class MessageService
     public async Task<List<DisplayMessageDTO>> GetMessagesAsync(Pagination? pagination)
     {
         pagination ??= new Pagination();
-        var result = await _db.LoadDataAsync<DisplayMessageDTO, Pagination>(Db.DbLoadProcedures.GetMessages, pagination);
+        var result = await _db.LoadDataAsync<DisplayMessageDTO, dynamic>(Db.DbLoadProcedures.GetMessages, new { p_last_created_at = pagination.LastCreatedAt, p_page_size = pagination.PageSize });
         return result.ToList();
     }
 
     public async Task CreateMessageAsync(MessageDTO message)
     {
+        await _db.SaveDataAsync(Db.DbSaveProcedures.CreateMessage, new { p_user_id = message.UserId, p_content = message.Content });
     }
 }

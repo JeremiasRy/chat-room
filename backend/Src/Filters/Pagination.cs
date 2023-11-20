@@ -2,6 +2,6 @@
 
 public class Pagination
 {
-    DateTime? LastCreatedBy { get; set; } = null;
+    public DateTime? LastCreatedAt { get; set; } = null;
     public int PageSize { get; set; } = 20;
 }
