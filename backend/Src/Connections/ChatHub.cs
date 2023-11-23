@@ -3,10 +3,6 @@ using backend.Src.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
-using backend.Src.Models;
-using System.Collections.Concurrent;
 
 namespace backend.Src.Connections;
 
@@ -45,6 +41,7 @@ public class ChatHub : Hub
             return;
         }
         await _userService.LoginUserAsync((Guid)httpContext.Items["Id"]!, Context.ConnectionId);
+        await NotifyConnectedUsers();
         await base.OnConnectedAsync();
     }
     public async override Task OnDisconnectedAsync(Exception? exception)
@@ -55,6 +52,7 @@ public class ChatHub : Hub
             return;
         }
         await _userService.LogoutUserAsync((Guid)httpContext.Items["Id"]!);
+        await NotifyConnectedUsers();
         await base.OnDisconnectedAsync(exception);
     }
     public async Task NotifyConnectedUsers()
