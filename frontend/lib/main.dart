@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/chat_message.dart';
+import 'package:frontend/server.dart';
 
 void main() {
   runApp(const MyApp());
@@ -28,7 +29,8 @@ class _ChatPageState extends State<ChatPage> {
   List<ChatMessage> messages = [];
 
   @override void initState() {
-    fetchAndSetMessages();
+    authenticate();
+    //fetchAndSetMessages();
     super.initState();
   }
 
