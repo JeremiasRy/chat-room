@@ -1,6 +1,17 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/chat_message.dart';
-import 'package:frontend/server.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'src/chat_message.dart';
+import 'src/server.dart';
+
+const scope = [
+  'name',
+  'https://www.googleapis.com/auth/contacts.readonly',
+];
+
+GoogleSignIn _googleSignIn = GoogleSignIn(
+  scopes: scope
+);
 
 void main() {
   runApp(const MyApp());
@@ -27,11 +38,32 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   List<ChatMessage> messages = [];
+  GoogleSignInAccount? _currentUser;
+  bool _isAuthorized = false;
 
   @override void initState() {
-    authenticate();
-    //fetchAndSetMessages();
     super.initState();
+
+    _googleSignIn.onCurrentUserChanged
+      .listen((GoogleSignInAccount? account) async {
+        bool isAuthorized = account != null;
+        print(kIsWeb);
+        if (kIsWeb && account != null) {
+          print("We are in if statement");
+          isAuthorized = await _googleSignIn.canAccessScopes(scope);
+        }
+
+        setState(() {
+          _currentUser = account;
+          _isAuthorized = isAuthorized;
+        });
+
+        if (isAuthorized) {
+        }
+      }
+    );
+  
+  _googleSignIn.signInSilently();
   }
 
   Future<void> fetchAndSetMessages() async {
@@ -43,6 +75,10 @@ class _ChatPageState extends State<ChatPage> {
     } catch (error) {
       //Implement some logging
     }
+  }
+
+  Future<void> authenticate() async {
+
   }
   
   @override

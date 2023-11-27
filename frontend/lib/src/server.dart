@@ -1,9 +1,13 @@
-import 'package:frontend/chat_message.dart';
-
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
+
+import 'chat_message.dart';
+
+Future authenticate() async {
+}
 
 Future<List<ChatMessage>> fetchMessages({DateTime? lastCreatedAt}) async {
   final url = Uri.parse("https://localhost:7098/api/v1/Messages");
@@ -27,11 +31,3 @@ Future<List<ChatMessage>> fetchMessages({DateTime? lastCreatedAt}) async {
     throw Exception("Things went south while fetching stuff from the internet");
   }
 }
-
-  Future<void> authenticate() async {
-    try {
-      await http.get(Uri.parse('https://localhost:7098/api/v1/Auths/login'));
-    } catch(error) {
-      print("Whats going on here $error");
-    }
-  }
