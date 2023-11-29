@@ -1,4 +1,5 @@
-﻿using backend.Src.Services;
+﻿using backend.Src.DTOs;
+using backend.Src.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,7 +7,7 @@ namespace backend.Src.Controllers;
 
 [ApiController]
 [AllowAnonymous]
-[Route("[controller]")]
+[Route("api/v1/[controller]")]
 public class AuthController : ControllerBase
 {
     private readonly IGoogleVerifierService _googleVerifierService;
@@ -19,9 +20,9 @@ public class AuthController : ControllerBase
         _jwtTokenService = jwtTokenService;
     }
     [HttpPost]
-    public async Task<IActionResult> AuthorizeToken([FromBody] string credential) 
+    public async Task<IActionResult> AuthorizeToken([FromBody] CredentialDTO credential) 
     {
-        var result = await _googleVerifierService.VerifyTokenAsync(credential);
+        var result = await _googleVerifierService.VerifyTokenAsync(credential.Credential);
         if (result is null)
         {
             return Unauthorized();
@@ -30,8 +31,8 @@ public class AuthController : ControllerBase
         if (userCheck is null)
         {
             await _userService.CreateUserAsync(result.Name);
+            userCheck = await _userService.GetUserAsync(name: result.Name) ?? throw new Exception("Things went south");
         }
-        userCheck = await _userService.GetUserAsync(name: result.Name) ?? throw new Exception("Things went south");
         return Ok(new { Token = _jwtTokenService.CreateToken(userCheck) });
     }
 }

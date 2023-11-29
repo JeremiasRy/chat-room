@@ -16,7 +16,8 @@ services
     .AddScoped<IDb, Db>()
     .AddScoped<IUserService, UserService>()
     .AddScoped<IMessageService, MessageService>()
-    .AddScoped<IGoogleVerifierService, GoogleVerifierService>();
+    .AddScoped<IGoogleVerifierService, GoogleVerifierService>()
+    .AddScoped<IJwtTokenService, JwtTokenService>();
 
 services.AddSignalR();
 services.AddHttpContextAccessor();
@@ -34,7 +35,9 @@ app.UseAuthorization();
 
 app.UseCors(options =>
 {
-    options.AllowAnyOrigin();
+    options
+        .AllowAnyOrigin()
+        .AllowAnyHeader();
 });
 
 app.MapControllers();

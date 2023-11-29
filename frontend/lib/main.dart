@@ -4,12 +4,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'src/chat_message.dart';
 import 'src/server.dart';
 
-const scope = [
-  'name',
-];
-
 GoogleSignIn _googleSignIn = GoogleSignIn(
-  scopes: scope,
+  scopes: ["https://www.googleapis.com/auth/cloud-platform"]
 );
 
 void main() {
@@ -46,9 +42,11 @@ class _ChatPageState extends State<ChatPage> {
     _googleSignIn.onCurrentUserChanged
       .listen((GoogleSignInAccount? account) async {
         bool isAuthorized = account != null;
-        if (kIsWeb && account != null) {
-          isAuthorized = await _googleSignIn.canAccessScopes(scope);
-        }
+
+        var auth = await account!.authentication;
+        final response = await authenticate(auth.idToken!);
+
+        print(response);
 
         setState(() {
           _currentUser = account;
@@ -73,10 +71,6 @@ class _ChatPageState extends State<ChatPage> {
     } catch (error) {
       //Implement some logging
     }
-  }
-
-  Future<void> authenticate() async {
-
   }
   
   @override
