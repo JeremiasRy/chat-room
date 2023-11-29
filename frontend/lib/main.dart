@@ -6,11 +6,10 @@ import 'src/server.dart';
 
 const scope = [
   'name',
-  'https://www.googleapis.com/auth/contacts.readonly',
 ];
 
 GoogleSignIn _googleSignIn = GoogleSignIn(
-  scopes: scope
+  scopes: scope,
 );
 
 void main() {
@@ -47,9 +46,7 @@ class _ChatPageState extends State<ChatPage> {
     _googleSignIn.onCurrentUserChanged
       .listen((GoogleSignInAccount? account) async {
         bool isAuthorized = account != null;
-        print(kIsWeb);
         if (kIsWeb && account != null) {
-          print("We are in if statement");
           isAuthorized = await _googleSignIn.canAccessScopes(scope);
         }
 
@@ -59,6 +56,7 @@ class _ChatPageState extends State<ChatPage> {
         });
 
         if (isAuthorized) {
+          //Get the credential and send it to backend to be checked
         }
       }
     );

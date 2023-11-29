@@ -6,7 +6,10 @@ import 'package:http/http.dart' as http;
 
 import 'chat_message.dart';
 
-Future authenticate() async {
+Future authenticate(String token) async {
+  final url = Uri.parse("https://localhost:7098/Auth"); 
+  final response = await http.post(url, body: token);
+  print(response);
 }
 
 Future<List<ChatMessage>> fetchMessages({DateTime? lastCreatedAt}) async {

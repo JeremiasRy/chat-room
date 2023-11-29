@@ -11,15 +11,6 @@ public class UserInfoMiddleware
     }
     public async Task Invoke(HttpContext httpContext)
     {
-        var userId = httpContext.User.FindFirstValue("user_id");
-        var name = httpContext.User.FindFirstValue("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name");
-
-        if (name is not null && Guid.TryParse(userId, out Guid userGuid)) 
-        {
-            httpContext.Items["Id"] = userGuid;
-            httpContext.Items["Name"] = name;
-        }
-
         await _next(httpContext);
     }
 }
