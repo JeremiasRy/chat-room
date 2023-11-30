@@ -1,9 +1,8 @@
 ﻿using backend.Src.Models;
 
-namespace backend.Src.Services
+namespace backend.Src.Services;
+
+public interface IJwtTokenService
 {
-    public interface IJwtTokenService
-    {
-        string CreateToken(ChatUser user);
-    }
+    string CreateToken(ChatUser user);
 }

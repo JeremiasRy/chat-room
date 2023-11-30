@@ -8,7 +8,7 @@ using System.Security.Claims;
 namespace backend.Src.Controllers;
 [ApiController]
 [Route("/api/v1/[controller]s")]
-//[Authorize(Policy = "RequireGoogleAuthentication")]
+[Authorize]
 public class MessageController : ControllerBase
 {
     private readonly IMessageService _service;
