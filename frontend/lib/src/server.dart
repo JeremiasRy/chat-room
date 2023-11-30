@@ -1,44 +1,101 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:frontend/src/models/current_user.dart';
+import 'package:frontend/src/token_provider.dart';
 import 'package:http/http.dart' as http;
 
-import 'chat_message.dart';
+import 'models/chat_message.dart';
 
-Future<String> authenticate(String token) async {
-  final url = Uri.parse("https://localhost:7098/api/v1/Auth"); 
-  Map<String, String> body = { 
-    "credential": token
-  };
-  Map<String, String> headers = {
-    "content-type": "application/json"
-  };
+class ProtectedEndpoints with ChangeNotifier {
+  late TokenProvider _tokenProvider;
 
-  final response = await http.post(url, headers: headers, body: json.encode(body));
-  print(response);
+  void updateTokenProvider(TokenProvider tokenProvider) {
+    _tokenProvider = tokenProvider;
+  }
 
-  return response.body;
+  void setToken(String token) {
+    _tokenProvider.token = token;
+  }
+
+  ProtectedEndpoints(this._tokenProvider);
+  
+  Future<CurrentUser> getCurrentUser() async {
+    final token = _tokenProvider.token;
+
+    if (token == null) {
+      throw Exception("You shouldn't be calling this endpoint without token");
+    }
+
+    final url = Uri.parse("https://localhost:7098/api/v1/User");
+
+    final response = await http.get(
+      url,
+      headers: {
+        "Authorization": "Bearer $token",
+        "Content-Type": "application/json"
+      }
+    );
+
+    if (response.statusCode == 200) {
+      return CurrentUser.fromJson(json.decode(response.body));
+    } else {
+      throw Exception("Somehow we failed miserably here.");
+    }
+  }
+
+  Future<List<ChatMessage>> fetchMessages({DateTime? lastCreatedAt}) async {
+    final token = _tokenProvider.token;
+
+    if (token == null) {
+      throw Exception("You shouldn't be calling this endpoint without token");
+    }
+
+    final url = Uri.parse("https://localhost:7098/api/v1/Messages");
+  
+    if (lastCreatedAt != null) {
+      Map<String, String> queryParams = {
+        'lastCreatedAt': lastCreatedAt.toIso8601String(),
+      };
+      url.replace(queryParameters: queryParams);
+    }
+
+    final response = await http.get(
+      url,
+      headers: {
+        "Authorization": "Bearer $token",
+        "Content-Type": "application/json"
+      }
+    );
+  
+    if (response.statusCode == 200) {
+      List<dynamic> responseBody = json.decode(response.body);
+      List<ChatMessage> messages = responseBody.map((json) {
+        return ChatMessage.fromJson(json);
+      }).toList();
+      return messages;
+    } else {
+      throw Exception("Things went south while fetching stuff from the internet");
+    }
+  }
 }
 
-Future<List<ChatMessage>> fetchMessages({DateTime? lastCreatedAt}) async {
-  final url = Uri.parse("https://localhost:7098/api/v1/Messages");
-  
-  if (lastCreatedAt != null) {
-    Map<String, String> queryParams = {
-      'lastCreatedAt': lastCreatedAt.toIso8601String(),
-    };
-    url.replace(queryParameters: queryParams);
-  }
+Future<String?> authenticate(String token) async {
+  final url = Uri.parse("https://localhost:7098/api/v1/Auth"); 
+ 
+  final response = await http.post(
+    url, 
+    headers: {
+      "content-type": "application/json"
+    }, 
+    body: json.encode({
+      "credential": token
+    })
+  );
 
-  final response = await http.get(url);
-  
-  if (response.statusCode == 200) {
-    List<dynamic> responseBody = json.decode(response.body);
-    List<ChatMessage> messages = responseBody.map((json) {
-      return ChatMessage.fromJson(json);
-    }).toList();
-    return messages;
-  } else {
-    throw Exception("Things went south while fetching stuff from the internet");
+  if (response.statusCode != 200) {
+    return null;
   }
+  return response.body;
 }

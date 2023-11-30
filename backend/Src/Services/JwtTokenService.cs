@@ -18,7 +18,7 @@ public class JwtTokenService : IJwtTokenService
     {
         List<Claim> claims = new()
         {
-            new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToString()),
+            new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.Ticks.ToString()),
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Name, user.Name)
         };
@@ -26,7 +26,6 @@ public class JwtTokenService : IJwtTokenService
         string secret = _configuration["Jwt:Secret"];
         var signinkey = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)), SecurityAlgorithms.HmacSha256);
         var expiration = DateTime.Now.AddHours(_configuration.GetValue<int>("Jwt:ExpiresInHours"));
-
         var token = new JwtSecurityToken(
             _configuration["Jwt:Issuer"],
             _configuration["Jwt:Audience"],

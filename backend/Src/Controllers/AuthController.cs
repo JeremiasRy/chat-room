@@ -33,6 +33,6 @@ public class AuthController : ControllerBase
             await _userService.CreateUserAsync(result.Name);
             userCheck = await _userService.GetUserAsync(name: result.Name) ?? throw new Exception("Things went south");
         }
-        return Ok(new { Token = _jwtTokenService.CreateToken(userCheck) });
+        return Ok(_jwtTokenService.CreateToken(userCheck));
     }
 }

@@ -14,12 +14,14 @@ public class UserInfoMiddleware
     public async Task Invoke(HttpContext httpContext)
     {
         string token = httpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-
-        var handler = new JwtSecurityTokenHandler();
-        var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
-        if (jsonToken is not null)
+        if (token is not null && token != "")
         {
-            httpContext.Items.Add("UserId", jsonToken.Subject);
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
+            if (jsonToken is not null)
+            {
+                httpContext.Items.Add("UserId", jsonToken.Subject);
+            }
         }
         await _next(httpContext);
     }

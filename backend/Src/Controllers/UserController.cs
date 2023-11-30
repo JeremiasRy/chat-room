@@ -1,12 +1,10 @@
 ﻿using backend.Src.Models;
 using backend.Src.Services;
-using Google.Apis.Util;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace backend.Src.Controllers;
-[Route("/api/v1/[controller]s")]
+[Route("/api/v1/[controller]")]
 [ApiController]
 [Authorize]
 public class UserController : ControllerBase
