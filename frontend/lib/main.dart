@@ -74,41 +74,41 @@ class _ChatPageContentState extends State<ChatPageContent> {
 
     _googleSignIn.onCurrentUserChanged
       .listen((GoogleSignInAccount? account) async {
-        bool cantAuthorize = false;
-        CurrentUser? currentUser;
 
         if (account == null) {
-          cantAuthorize = true;
-        } else {
-          GoogleSignInAuthentication auth = await account.authentication;
-          String? response = await authenticate(auth.idToken!);
-          if (response == null) {
-            cantAuthorize = true;
-          } else {
-            tokenProvider.token = response;
-            currentUser = await protectedEndpoints.getCurrentUser();
-          }
+          _cantAuthorize = true;
+          return;
         }
-        setState(() {
-          _currentUser = currentUser;
-          _cantAuthorize = cantAuthorize;
-        });
+
+        GoogleSignInAuthentication auth = await account.authentication;
+        String? response = await authenticate(auth.idToken!);
+
+        if (response == null) {
+          _cantAuthorize = true;
+          return;
+        } 
+
+        tokenProvider.token = response;
+        setupChatEnvironment();
       }
     );
 
     protectedEndpoints.checkAndRefreshToken()
       .then((success) {
-        print("callback in initstate $success");
         if (!success) {
           _googleSignIn.signInSilently();
         } else {
-          fetchAndSetUserAndMessages();
+          setupChatEnvironment();
         }
       }
     );
   }
 
-  Future<void> fetchAndSetUserAndMessages() async {
+  Future<void> setupChatEnvironment() async {
+    if (_cantAuthorize) {
+      return;
+    }
+
     final protectedEndpoints = Provider.of<ProtectedEndpoints>(context, listen: false);
     final user = await protectedEndpoints.getCurrentUser();
     final messages = await protectedEndpoints.fetchMessages();
@@ -117,17 +117,6 @@ class _ChatPageContentState extends State<ChatPageContent> {
       _currentUser = user;
       _messages = messages;
     });
-  }
-
-  Future<void> fetchAndSetMessages() async {
-    try {
-      //List<ChatMessage> fetchedMessages = await prote();
-      setState(() {
-        //messages = fetchedMessages;
-      });
-    } catch (error) {
-      //Implement some logging
-    }
   }
 
   @override
