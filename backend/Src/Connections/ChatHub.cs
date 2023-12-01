@@ -1,13 +1,10 @@
 ﻿using backend.Src.Services;
 using backend.Src.DTOs;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR;
 
 namespace backend.Src.Connections;
-
-[Authorize("RequireGoogleAuthentication")]
-[Route("/chat")]
+[Authorize]
 public class ChatHub : Hub
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -28,7 +25,7 @@ public class ChatHub : Hub
             return;
         }
 
-        if (await _messageService.CreateMessageAsync(new MessageDTO() { Content = message, UserId = (Guid)httpContext.Items["Id"]! }))
+        if (await _messageService.CreateMessageAsync(new MessageDTO() { Content = message, UserId = (Guid)httpContext.Items["UserId"]! }))
         {
             await Clients.All.SendAsync("ReceiveMessage", new DisplayMessageDTO() { Content = message, Name = (string)httpContext.Items["Name"]! });
         }
@@ -40,9 +37,12 @@ public class ChatHub : Hub
         {
             return;
         }
-        await _userService.LoginUserAsync((Guid)httpContext.Items["Id"]!, Context.ConnectionId);
-        await NotifyConnectedUsers();
-        await base.OnConnectedAsync();
+        if (httpContext.Items.ContainsKey("UserId") && Guid.TryParse(httpContext.Items["UserId"]!.ToString(), out Guid userId))
+        {
+            await _userService.LoginUserAsync(userId, Context.ConnectionId);
+            await NotifyConnectedUsers();
+            await base.OnConnectedAsync();
+        }
     }
     public async override Task OnDisconnectedAsync(Exception? exception)
     {
@@ -51,9 +51,12 @@ public class ChatHub : Hub
         {
             return;
         }
-        await _userService.LogoutUserAsync((Guid)httpContext.Items["Id"]!);
-        await NotifyConnectedUsers();
-        await base.OnDisconnectedAsync(exception);
+        if (httpContext.Items.ContainsKey("UserId") && Guid.TryParse(httpContext.Items["UserId"]!.ToString(), out Guid userId))
+        {
+            await _userService.LogoutUserAsync(userId);
+            await NotifyConnectedUsers();
+            await base.OnConnectedAsync();
+        }
     }
     public async Task NotifyConnectedUsers()
     {

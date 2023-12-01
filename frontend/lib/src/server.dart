@@ -6,8 +6,43 @@ import 'package:frontend/src/models/current_user.dart';
 import 'package:frontend/src/shared_preferences.dart';
 import 'package:frontend/src/token_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:signalr_netcore/signalr_client.dart';
 
 import 'models/chat_message.dart';
+
+class ChatHubConnection with ChangeNotifier {
+  final String _serverUrl;
+  late TokenProvider _tokenProvider;
+
+  void updateTokenProvider(TokenProvider tokenProvider) {
+    _tokenProvider = tokenProvider;
+  }
+
+  late HubConnection hubConnection;
+
+  Future<void> startConnection() async {
+    final token = _tokenProvider.token;
+    hubConnection = HubConnectionBuilder()
+      .withUrl(
+        _serverUrl,
+        options: HttpConnectionOptions(
+          accessTokenFactory: () async => "$token"
+        ))
+      .build();
+      
+    await hubConnection.start();
+  }
+
+  void sendMessage(String message) {
+    hubConnection.invoke('SendMessage', args: [message]);
+  }
+
+  void onReceiveMessage(Function(String) callback) {
+    hubConnection.on('ReceiveMessage', (message) => print(message));
+  }
+
+  ChatHubConnection(this._serverUrl, this._tokenProvider);
+}
 
 class ProtectedEndpoints with ChangeNotifier {
   late TokenProvider _tokenProvider;
@@ -122,4 +157,3 @@ Future<String?> authenticate(String token) async {
   SharedPreferencesHelper.saveToken(response.body);
   return response.body;
 }
-

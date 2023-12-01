@@ -196,10 +196,10 @@ packages:
     dependency: "direct main"
     description:
       name: http
-      sha256: d4872660c46d929f6b8a9ef4e7a7eff7e49bbf0c4ec3f385ee32df5119175139
+      sha256: "5895291c13fa8a3bd82e76d5627f69e0d85ca6a30dcac95c4ea19a5d555879c2"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.2"
+    version: "0.13.6"
   http_parser:
     dependency: transitive
     description:
@@ -224,6 +224,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  logging:
+    dependency: transitive
+    description:
+      name: logging
+      sha256: "623a88c9594aa774443aa3eb2d41807a48486b5613e67599fb4c41c0ad47c340"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   matcher:
     dependency: transitive
     description:
@@ -240,6 +248,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.5.0"
+  message_pack_dart:
+    dependency: transitive
+    description:
+      name: message_pack_dart
+      sha256: "71b9f0ff60e5896e60b337960bb535380d7dba3297b457ac763ccae807385b59"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   meta:
     dependency: transitive
     description:
@@ -320,6 +336,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.7"
+  pool:
+    dependency: transitive
+    description:
+      name: pool
+      sha256: "20fe868b6314b322ea036ba325e6fc0711a22948856475e2c2b6306e8ab39c2a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.5.1"
   provider:
     dependency: "direct main"
     description:
@@ -400,6 +424,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.2"
+  shelf:
+    dependency: transitive
+    description:
+      name: shelf
+      sha256: ad29c505aee705f41a4d8963641f91ac4cee3c8fad5947e033390a7bd8180fa4
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.4.1"
+  signalr_netcore:
+    dependency: "direct main"
+    description:
+      name: signalr_netcore
+      sha256: "8f84b4b516c03f3a6872f94e9729d1441d5d223a77c81d0a7d7dae5dd0ce1f2f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.6"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -413,6 +453,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.0"
+  sse:
+    dependency: transitive
+    description:
+      name: sse
+      sha256: "8168874cdbd42c36ea118ba9f88a656ad97f604f28c976c61cb6d5b281c5319c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.4"
+  sse_channel:
+    dependency: transitive
+    description:
+      name: sse_channel
+      sha256: ba2b1382b9423c58fa83e1f01a3a40fbaa16a0594aa984870c88bad0b45d4ca4
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.3"
   stack_trace:
     dependency: transitive
     description:
@@ -453,6 +509,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.1"
+  tuple:
+    dependency: transitive
+    description:
+      name: tuple
+      sha256: a97ce2013f240b2f3807bcbaf218765b6f301c3eff91092bcfa23a039e7dd151
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
   typed_data:
     dependency: transitive
     description:
@@ -461,6 +525,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.2"
+  uuid:
+    dependency: transitive
+    description:
+      name: uuid
+      sha256: "648e103079f7c64a36dc7d39369cabb358d377078a051d6ae2ad3aa539519313"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.7"
   vector_math:
     dependency: transitive
     description:
@@ -485,6 +557,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.0"
+  web_socket_channel:
+    dependency: transitive
+    description:
+      name: web_socket_channel
+      sha256: d88238e5eac9a42bb43ca4e721edba3c08c6354d4a53063afaa568516217621b
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.0"
   win32:
     dependency: transitive
     description:

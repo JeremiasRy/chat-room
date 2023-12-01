@@ -22,6 +22,10 @@ public class AuthController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> AuthorizeToken([FromBody] CredentialDTO credential) 
     {
+        if (!_jwtTokenService.CanReadToken(credential.Credential))
+        {
+            return Unauthorized();
+        }
         var result = await _googleVerifierService.VerifyTokenAsync(credential.Credential);
         if (result is null)
         {

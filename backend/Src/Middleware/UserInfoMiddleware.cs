@@ -14,6 +14,11 @@ public class UserInfoMiddleware
     public async Task Invoke(HttpContext httpContext)
     {
         string token = httpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        if (token == "")
+        {
+            token = httpContext.Request.Query["access_token"];
+        }
+
         if (token is not null && token != "")
         {
             var handler = new JwtSecurityTokenHandler();

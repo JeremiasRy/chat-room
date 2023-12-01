@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/src/models/current_user.dart';
-import 'package:frontend/src/shared_preferences.dart';
 import 'package:frontend/src/token_provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'src/models/chat_message.dart';
 import 'src/server.dart';
+
+const String hubUrl = "https://localhost:7098/chat";
 
 GoogleSignIn _googleSignIn = GoogleSignIn(
   scopes: ["https://www.googleapis.com/auth/cloud-platform"]
@@ -29,7 +30,13 @@ class MyApp extends StatelessWidget {
             protectedEndpoints!.updateTokenProvider(tokenProvider);
             return protectedEndpoints;
           }
-        )
+        ),
+        ChangeNotifierProxyProvider<TokenProvider, ChatHubConnection>(
+          create: (context) => ChatHubConnection(hubUrl, Provider.of<TokenProvider>(context, listen: false)),
+          update: (context, tokenProvider, chatHubConnection) {
+            chatHubConnection!.updateTokenProvider(tokenProvider);
+            return chatHubConnection;
+          })
       ],
       child: const MaterialApp(
         home: ChatPage()
@@ -63,6 +70,7 @@ class ChatPageContent extends StatefulWidget {
 }
 
 class _ChatPageContentState extends State<ChatPageContent> {
+  late ChatHubConnection _chat;
   List<ChatMessage> _messages = [];
   CurrentUser? _currentUser;
   bool _cantAuthorize = false;
@@ -108,15 +116,18 @@ class _ChatPageContentState extends State<ChatPageContent> {
     if (_cantAuthorize) {
       return;
     }
-
     final protectedEndpoints = Provider.of<ProtectedEndpoints>(context, listen: false);
+    final chat = Provider.of<ChatHubConnection>(context, listen: false);
     final user = await protectedEndpoints.getCurrentUser();
     final messages = await protectedEndpoints.fetchMessages();
-
+    await chat.startConnection();
+    
     setState(() {
       _currentUser = user;
       _messages = messages;
+      _chat = chat;
     });
+    
   }
 
   @override

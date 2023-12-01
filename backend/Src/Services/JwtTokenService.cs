@@ -38,4 +38,10 @@ public class JwtTokenService : IJwtTokenService
 
         return writer.WriteToken(token);
     }
+
+    public bool CanReadToken(string token)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        return handler.CanReadToken(token);
+    }
 }

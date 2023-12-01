@@ -5,4 +5,5 @@ namespace backend.Src.Services;
 public interface IJwtTokenService
 {
     string CreateToken(ChatUser user);
+    bool CanReadToken(string token);
 }
