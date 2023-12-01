@@ -35,4 +35,14 @@ public class AuthController : ControllerBase
         }
         return Ok(_jwtTokenService.CreateToken(userCheck));
     }
+    [HttpGet("refresh")]
+    public async Task<IActionResult> RefreshToken() 
+    {
+        if (HttpContext.Items.ContainsKey("UserId") && Guid.TryParse(HttpContext.Items["UserId"]!.ToString(), out Guid userId))
+        {
+            var user = await _userService.GetUserAsync(userId);
+            return user is not null ? Ok(_jwtTokenService.CreateToken(user)) : BadRequest();
+        }
+        return BadRequest();
+    }
 }

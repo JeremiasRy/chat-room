@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:frontend/src/models/current_user.dart';
+import 'package:frontend/src/shared_preferences.dart';
 import 'package:frontend/src/token_provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -15,11 +16,32 @@ class ProtectedEndpoints with ChangeNotifier {
     _tokenProvider = tokenProvider;
   }
 
-  void setToken(String token) {
-    _tokenProvider.token = token;
-  }
-
   ProtectedEndpoints(this._tokenProvider);
+
+  Future<bool> checkAndRefreshToken() async {
+    final token = await SharedPreferencesHelper.getToken();
+
+    if (token == null) {
+      return false;
+    }
+
+    final url = Uri.parse("https://localhost:7098/api/v1/Auth/refresh"); 
+
+    final response = await http.get(
+      url,
+      headers: {
+        "Authorization": "Bearer $token",
+        "Content-Type": "application/json"
+      }
+    );
+
+    if (response.statusCode != 200) {
+      return false;
+    }
+    SharedPreferencesHelper.saveToken(response.body);
+    _tokenProvider.token = response.body;
+    return true;
+  }
   
   Future<CurrentUser> getCurrentUser() async {
     final token = _tokenProvider.token;
@@ -97,5 +119,7 @@ Future<String?> authenticate(String token) async {
   if (response.statusCode != 200) {
     return null;
   }
+  SharedPreferencesHelper.saveToken(response.body);
   return response.body;
 }
+

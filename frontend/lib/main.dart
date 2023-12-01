@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/src/models/current_user.dart';
+import 'package:frontend/src/shared_preferences.dart';
 import 'package:frontend/src/token_provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
@@ -62,7 +63,7 @@ class ChatPageContent extends StatefulWidget {
 }
 
 class _ChatPageContentState extends State<ChatPageContent> {
-  List<ChatMessage> messages = [];
+  List<ChatMessage> _messages = [];
   CurrentUser? _currentUser;
   bool _cantAuthorize = false;
 
@@ -94,7 +95,28 @@ class _ChatPageContentState extends State<ChatPageContent> {
         });
       }
     );
-  _googleSignIn.signInSilently();
+
+    protectedEndpoints.checkAndRefreshToken()
+      .then((success) {
+        print("callback in initstate $success");
+        if (!success) {
+          _googleSignIn.signInSilently();
+        } else {
+          fetchAndSetUserAndMessages();
+        }
+      }
+    );
+  }
+
+  Future<void> fetchAndSetUserAndMessages() async {
+    final protectedEndpoints = Provider.of<ProtectedEndpoints>(context, listen: false);
+    final user = await protectedEndpoints.getCurrentUser();
+    final messages = await protectedEndpoints.fetchMessages();
+
+    setState(() {
+      _currentUser = user;
+      _messages = messages;
+    });
   }
 
   Future<void> fetchAndSetMessages() async {
@@ -111,12 +133,12 @@ class _ChatPageContentState extends State<ChatPageContent> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: messages.length,
+      itemCount: _messages.length,
       itemBuilder: (context, index) {
         return ListTile(
-          title: Text(messages[index].name),
-          subtitle: Text(messages[index].content),
-          trailing: Text(messages[index].createdAt.toString()),
+          title: Text(_messages[index].name),
+          subtitle: Text(_messages[index].content),
+          trailing: Text(_messages[index].createdAt.toString()),
         );
       }
     );
