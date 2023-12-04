@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:frontend/src/models/current_user.dart';
 import 'package:frontend/src/shared_preferences.dart';
-import 'package:frontend/src/token_provider.dart';
+import 'package:frontend/src/providers.dart';
 import 'package:http/http.dart' as http;
 import 'package:signalr_netcore/signalr_client.dart';
 
@@ -13,6 +13,8 @@ import 'models/chat_message.dart';
 class ChatHubConnection with ChangeNotifier {
   final String _serverUrl;
   late TokenProvider _tokenProvider;
+  List<ChatMessage> _messages = [];
+  List<String> _connectedUsers = [];
 
   void updateTokenProvider(TokenProvider tokenProvider) {
     _tokenProvider = tokenProvider;
@@ -33,12 +35,20 @@ class ChatHubConnection with ChangeNotifier {
     await hubConnection.start();
   }
 
-  void sendMessage(String message) {
+  void sendMessage(String message) async {
     hubConnection.invoke('SendMessage', args: [message]);
   }
 
-  void onReceiveMessage(Function(String) callback) {
-    hubConnection.on('ReceiveMessage', (message) => print(message));
+  void onReceiveMessage(Function(Map<String, dynamic>) callback) {
+    hubConnection.on('ReceiveMessage', (message) {
+      print(message);
+    });
+  }
+
+  void onReceiveConnectedUsers(Function(Map<String, dynamic>) callback) {
+    hubConnection.on('ConnectedUsers', (message) {
+      print(message);
+    });
   }
 
   ChatHubConnection(this._serverUrl, this._tokenProvider);

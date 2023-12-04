@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/src/models/current_user.dart';
-import 'package:frontend/src/token_provider.dart';
+import 'package:frontend/src/providers.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
+import 'package:signalr_netcore/utils.dart';
 import 'src/models/chat_message.dart';
 import 'src/server.dart';
 
@@ -53,7 +54,7 @@ class ChatPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Chat Room")
-        ),
+      ),
       body: const ChatPageContent()
     );
   }
@@ -72,8 +73,10 @@ class ChatPageContent extends StatefulWidget {
 class _ChatPageContentState extends State<ChatPageContent> {
   late ChatHubConnection _chat;
   List<ChatMessage> _messages = [];
+  List<String> _connectedUsers = [];
   CurrentUser? _currentUser;
   bool _cantAuthorize = false;
+  final TextEditingController _textController = TextEditingController();
 
   @override void initState() {
     super.initState();
@@ -101,7 +104,8 @@ class _ChatPageContentState extends State<ChatPageContent> {
       }
     );
 
-    protectedEndpoints.checkAndRefreshToken()
+    protectedEndpoints
+      .checkAndRefreshToken()
       .then((success) {
         if (!success) {
           _googleSignIn.signInSilently();
@@ -127,20 +131,48 @@ class _ChatPageContentState extends State<ChatPageContent> {
       _messages = messages;
       _chat = chat;
     });
-    
+  }
+
+  void _sendMessage(String message) {
+    _chat.sendMessage(message);
+  }
+
+  void _notifyConnectedUsers(List<String> connectedUsers) {
+    setState(() {
+      _connectedUsers = connectedUsers;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: _messages.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text(_messages[index].name),
-          subtitle: Text(_messages[index].content),
-          trailing: Text(_messages[index].createdAt.toString()),
-        );
-      }
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            itemCount: _messages.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(_messages[index].name),
+                subtitle: Text(_messages[index].content),
+                trailing: Text(_messages[index].createdAt.toString()),
+              );
+            },
+          ),
+        ),
+        TextField(
+          controller: _textController,
+          decoration: const InputDecoration(
+            hintText: "Write your message here...",
+            labelText: "user",
+          )
+        ),
+        ElevatedButton(
+          onPressed: () {
+            _sendMessage(_textController.text);
+          },
+          child: const Text('Send'),
+        ),
+      ],
     );
   }
 }

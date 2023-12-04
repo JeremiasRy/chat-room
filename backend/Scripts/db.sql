@@ -73,14 +73,14 @@ $$ LANGUAGE plpgsql;
 /* FUNCTION TO HANDLE USER LOGINS */
 CREATE OR REPLACE FUNCTION user_login(
     p_user_id UUID,
-    p_connection_id TEXT,
+    p_connection_id TEXT
 )
 RETURNS VOID
 AS $$
 BEGIN
     UPDATE chat_user
     SET
-        online = TRUE,
+        online = true,
         last_login_time = CURRENT_TIMESTAMP,
         connection_id = p_connection_id
     WHERE
@@ -96,8 +96,8 @@ AS $$
 BEGIN
     UPDATE chat_user
     SET
-        online = false
-        connection_id = ""
+        online = false,
+        connection_id = ''
     WHERE
         id = p_user_id;
 END;
