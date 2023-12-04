@@ -183,7 +183,7 @@ returns table (
 AS $$
 BEGIN
     RETURN QUERY
-    SELECT name
+    SELECT chat_user.name
     FROM chat_user
     WHERE chat_user.online = true;
 END;

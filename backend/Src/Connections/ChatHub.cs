@@ -2,6 +2,8 @@
 using backend.Src.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace backend.Src.Connections;
 [Authorize]
@@ -25,9 +27,18 @@ public class ChatHub : Hub
             return;
         }
 
-        if (await _messageService.CreateMessageAsync(new MessageDTO() { Content = message, UserId = (Guid)httpContext.Items["UserId"]! }))
+        if (httpContext.Items.ContainsKey("UserId") && Guid.TryParse(httpContext.Items["UserId"]!.ToString(), out Guid userId))
         {
-            await Clients.All.SendAsync("ReceiveMessage", new DisplayMessageDTO() { Content = message, Name = (string)httpContext.Items["Name"]! });
+            if (await _messageService.CreateMessageAsync(new MessageDTO() { Content = message, UserId = userId }))
+            {
+                var serializeOptions = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                var response = JsonSerializer.Serialize(new DisplayMessageDTO() { Content = message, Name = ((Claim)httpContext.Items["Name"]!).Value }, serializeOptions);
+                await Clients.All.SendAsync("ReceiveMessage", response);
+            }
         }
     }
     public override async Task OnConnectedAsync()
@@ -61,6 +72,6 @@ public class ChatHub : Hub
     public async Task NotifyConnectedUsers()
     {
         var result = await _userService.GetLoggedInUsersAsync();
-        await Clients.All.SendAsync("ConnectedUsers", result);
+        await Clients.AllExcept(Context.ConnectionId).SendAsync("ConnectedUsers", result);
     }
 }

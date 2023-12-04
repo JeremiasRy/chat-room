@@ -125,6 +125,14 @@ class _ChatPageContentState extends State<ChatPageContent> {
     final user = await protectedEndpoints.getCurrentUser();
     final messages = await protectedEndpoints.fetchMessages();
     await chat.startConnection();
+
+    chat.onReceiveConnectedUsers((connectedUsers) {
+      print(connectedUsers);
+    });
+
+    chat.onReceiveMessage((messages) {
+      print(messages);
+    });
     
     setState(() {
       _currentUser = user;

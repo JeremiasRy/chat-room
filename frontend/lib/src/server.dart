@@ -41,13 +41,14 @@ class ChatHubConnection with ChangeNotifier {
 
   void onReceiveMessage(Function(Map<String, dynamic>) callback) {
     hubConnection.on('ReceiveMessage', (message) {
-      print(message);
+        List<dynamic> response = json.decode(message!.toString());
+        ChatMessage responseMessage = ChatMessage.fromJson(response[0]);
+        //Do some magic!
     });
   }
 
   void onReceiveConnectedUsers(Function(Map<String, dynamic>) callback) {
     hubConnection.on('ConnectedUsers', (message) {
-      print(message);
     });
   }
 

@@ -26,6 +26,7 @@ public class UserInfoMiddleware
             if (jsonToken is not null)
             {
                 httpContext.Items.Add("UserId", jsonToken.Subject);
+                httpContext.Items.Add("Name", jsonToken.Claims.SingleOrDefault(claim => claim.Type == "name")!);
             }
         }
         await _next(httpContext);
