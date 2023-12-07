@@ -16,7 +16,7 @@ public class MessageService : IMessageService
     {
         pagination ??= new Pagination();
         var result = await _db.LoadDataAsync<DisplayMessageDTO, dynamic>(Db.DbLoadProcedures.GetMessages, new { p_last_created_at = pagination.LastCreatedAt, p_page_size = pagination.PageSize });
-        return result.ToList();
+        return result.Reverse().ToList();
     }
 
     public async Task<bool> CreateMessageAsync(MessageDTO message)

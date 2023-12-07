@@ -77,6 +77,7 @@ class _ChatPageContentState extends State<ChatPageContent> {
   CurrentUser? _currentUser;
   bool _cantAuthorize = false;
   final TextEditingController _textController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   @override void initState() {
     super.initState();
@@ -135,9 +136,13 @@ class _ChatPageContentState extends State<ChatPageContent> {
     });
 
     chat.onReceiveMessage((message) {
-      setState(() {
-        _messages.add(message);
+      _messages.add(message);
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        scrollToLatestItem();
       });
+
+      setState(() {});
     });
 
     setState(() {
@@ -145,10 +150,21 @@ class _ChatPageContentState extends State<ChatPageContent> {
       _currentUser = user;
       _chat = chat;
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollToLatestItem();
+    });
   }
 
   void _sendMessage(String message) {
     _chat.sendMessage(message);
+  }
+
+  void scrollToLatestItem() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 100),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
@@ -157,6 +173,7 @@ class _ChatPageContentState extends State<ChatPageContent> {
       children: [
         Expanded(
           child: ListView.builder(
+            controller: _scrollController,
             itemCount: _messages.length,
             itemBuilder: (context, index) {
               return ListTile(

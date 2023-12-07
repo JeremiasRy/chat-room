@@ -129,7 +129,7 @@ BEGIN
     WHERE
         (p_last_created_at IS NULL or message.created_at < p_last_created_at)
     ORDER BY
-        message.created_at DESC
+        message.created_at desc
     LIMIT
         p_page_size;
 END;
@@ -176,7 +176,7 @@ BEGIN
         (chat_user.id = p_id OR p_id IS NULL)
         AND (chat_user.email = p_email OR p_email IS NULL)
     ORDER BY
-        message.created_at DESC;
+        message.created_at;
 END;
 $$ LANGUAGE plpgsql;
 
