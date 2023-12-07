@@ -100,20 +100,22 @@ class _ChatPageContentState extends State<ChatPageContent> {
         } 
 
         tokenProvider.token = response;
-        setupChatEnvironment();
+        await setupChatEnvironment();
       }
     );
 
-    protectedEndpoints
-      .checkAndRefreshToken()
-      .then((success) {
-        if (!success) {
-          _googleSignIn.signInSilently();
-        } else {
-          setupChatEnvironment();
+    if (_currentUser == null) {
+      protectedEndpoints
+        .checkAndRefreshToken()
+        .then((success) {
+          if (!success) {
+            _googleSignIn.signInSilently();
+          } else {
+            setupChatEnvironment();
+          }
         }
-      }
-    );
+      );
+    }  
   }
 
   Future<void> setupChatEnvironment() async {
@@ -121,34 +123,32 @@ class _ChatPageContentState extends State<ChatPageContent> {
       return;
     }
     final protectedEndpoints = Provider.of<ProtectedEndpoints>(context, listen: false);
-    final chat = Provider.of<ChatHubConnection>(context, listen: false);
+    final ChatHubConnection chat = Provider.of<ChatHubConnection>(context, listen: false);
     final user = await protectedEndpoints.getCurrentUser();
     final messages = await protectedEndpoints.fetchMessages();
     await chat.startConnection();
 
     chat.onReceiveConnectedUsers((connectedUsers) {
-      print(connectedUsers);
+      setState(() {
+        _connectedUsers = connectedUsers;
+      });
     });
 
-    chat.onReceiveMessage((messages) {
-      print(messages);
+    chat.onReceiveMessage((message) {
+      setState(() {
+        _messages.add(message);
+      });
     });
-    
+
     setState(() {
-      _currentUser = user;
       _messages = messages;
+      _currentUser = user;
       _chat = chat;
     });
   }
 
   void _sendMessage(String message) {
     _chat.sendMessage(message);
-  }
-
-  void _notifyConnectedUsers(List<String> connectedUsers) {
-    setState(() {
-      _connectedUsers = connectedUsers;
-    });
   }
 
   @override

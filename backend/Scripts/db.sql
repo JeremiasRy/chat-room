@@ -3,9 +3,10 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 /* TABLES */
 CREATE TABLE chat_user (
     id UUID PRIMARY KEY,
+    email text NOT NULL UNIQUE,
     created_at TIMESTAMP default CURRENT_TIMESTAMP,
     updated_at TIMESTAMP default CURRENT_TIMESTAMP,
-    name TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
     online BOOLEAN NOT NULL default false,
     connection_id TEXT,
     last_login_time TIMESTAMP NOT NULL default CURRENT_TIMESTAMP
@@ -48,13 +49,14 @@ EXECUTE FUNCTION updated_at_stamp();
 /* CREATE CHAT USER AND MESSAGE */
 
 CREATE OR REPLACE FUNCTION create_user(
-    p_name TEXT
+    p_name TEXT,
+    p_email TEXT
 )
 RETURNS VOID
 AS $$
 BEGIN
-    INSERT INTO chat_user (id, name, online)
-    VALUES (uuid_generate_v4(), p_name, true);
+    INSERT INTO chat_user (id, name, email, online)
+    VALUES (uuid_generate_v4(), p_name, p_email, true);
 END;
 $$ LANGUAGE plpgsql;
 
@@ -136,13 +138,14 @@ $$ LANGUAGE plpgsql;
 /* GET USER */
 CREATE OR REPLACE FUNCTION get_chat_user(
     p_id UUID,
-    p_name TEXT
+    p_email TEXT
 )
 RETURNS TABLE (
         id UUID,
         created_at TIMESTAMP,
         updated_at TIMESTAMP,
         name TEXT,
+        email TEXT,
         online BOOLEAN,
         last_login_time TIMESTAMP,
         message_id UUID,
@@ -158,6 +161,7 @@ BEGIN
         chat_user.created_at,
         chat_user.updated_at,
         chat_user.name,
+        chat_user.email,
         chat_user.online,
         chat_user.last_login_time,
         message.id,
@@ -170,7 +174,7 @@ BEGIN
         message ON chat_user.id = message.user_id
     WHERE
         (chat_user.id = p_id OR p_id IS NULL)
-        AND (chat_user.name = p_name OR p_name IS NULL)
+        AND (chat_user.email = p_email OR p_email IS NULL)
     ORDER BY
         message.created_at DESC;
 END;

@@ -18,6 +18,15 @@ public class ChatHub : Hub
         _httpContextAccessor = httpContextAccessor;
         _userService = userService;
     }
+
+    private static string MakeResponseToProperJson(object responseObj)
+    {
+        return JsonSerializer.Serialize(responseObj, new JsonSerializerOptions()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true,
+        });
+    }
     public async Task SendMessage(string message)
     {
         var httpContext = _httpContextAccessor.HttpContext;
@@ -36,7 +45,7 @@ public class ChatHub : Hub
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                     WriteIndented = true
                 };
-                var response = JsonSerializer.Serialize(new DisplayMessageDTO() { Content = message, Name = ((Claim)httpContext.Items["Name"]!).Value }, serializeOptions);
+                var response = MakeResponseToProperJson(new DisplayMessageDTO() { Content = message, Name = ((Claim)httpContext.Items["Name"]!).Value });
                 await Clients.All.SendAsync("ReceiveMessage", response);
             }
         }
@@ -72,6 +81,6 @@ public class ChatHub : Hub
     public async Task NotifyConnectedUsers()
     {
         var result = await _userService.GetLoggedInUsersAsync();
-        await Clients.AllExcept(Context.ConnectionId).SendAsync("ConnectedUsers", result);
+        await Clients.All.SendAsync("ConnectedUsers", MakeResponseToProperJson(result));
     }
 }

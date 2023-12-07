@@ -13,11 +13,31 @@ import 'models/chat_message.dart';
 class ChatHubConnection with ChangeNotifier {
   final String _serverUrl;
   late TokenProvider _tokenProvider;
-  List<ChatMessage> _messages = [];
-  List<String> _connectedUsers = [];
 
   void updateTokenProvider(TokenProvider tokenProvider) {
     _tokenProvider = tokenProvider;
+  }
+
+  void onReceiveMessage(Function(ChatMessage) callback) {
+    hubConnection.on('ReceiveMessage', (message) {
+        List<dynamic> response = json.decode(message!.toString());
+        ChatMessage responseMessage = ChatMessage.fromJson(response[0]);
+        callback(responseMessage);
+    });
+  }
+
+  void onReceiveConnectedUsers(Function(List<String>) callback) {
+    hubConnection.on('ConnectedUsers', (message) {
+      try {
+        List<dynamic> response = json.decode(message!.toString());
+        List<String> connectedUsers = List<String>.from(response[0]);
+        print(response);
+        callback(connectedUsers);
+      } catch(e) {
+        print(e);
+      }
+        
+    });
   }
 
   late HubConnection hubConnection;
@@ -37,19 +57,6 @@ class ChatHubConnection with ChangeNotifier {
 
   void sendMessage(String message) async {
     hubConnection.invoke('SendMessage', args: [message]);
-  }
-
-  void onReceiveMessage(Function(Map<String, dynamic>) callback) {
-    hubConnection.on('ReceiveMessage', (message) {
-        List<dynamic> response = json.decode(message!.toString());
-        ChatMessage responseMessage = ChatMessage.fromJson(response[0]);
-        //Do some magic!
-    });
-  }
-
-  void onReceiveConnectedUsers(Function(Map<String, dynamic>) callback) {
-    hubConnection.on('ConnectedUsers', (message) {
-    });
   }
 
   ChatHubConnection(this._serverUrl, this._tokenProvider);

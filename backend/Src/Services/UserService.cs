@@ -10,13 +10,13 @@ public class UserService : IUserService
     {
         _db = db;
     }
-    public async Task CreateUserAsync(string name)
+    public async Task CreateUserAsync(string name, string email)
     {
-        await _db.SaveDataAsync<dynamic>(Db.DbSaveProcedures.CreateUser, new { p_name = name });
+        await _db.SaveDataAsync<dynamic>(Db.DbSaveProcedures.CreateUser, new { p_name = name, p_email = email });
     }
-    public async Task<ChatUser?> GetUserAsync(Guid? id = null, string? name = null)
+    public async Task<ChatUser?> GetUserAsync(Guid? id = null, string? email = null)
     {
-        var result = await _db.LoadDataAsync<ChatUser, dynamic>(Db.DbLoadProcedures.GetUser, new { p_id = id, p_name = name });
+        var result = await _db.LoadDataAsync<ChatUser, dynamic>(Db.DbLoadProcedures.GetUser, new { p_id = id, p_email = email });
         return result.FirstOrDefault();
     }
     public async Task<List<string>> GetLoggedInUsersAsync()

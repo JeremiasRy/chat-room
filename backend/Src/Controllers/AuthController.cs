@@ -31,11 +31,11 @@ public class AuthController : ControllerBase
         {
             return Unauthorized();
         }
-        var userCheck = await _userService.GetUserAsync(name: result.Name);
+        var userCheck = await _userService.GetUserAsync(email: result.Email);
         if (userCheck is null)
         {
-            await _userService.CreateUserAsync(result.Name);
-            userCheck = await _userService.GetUserAsync(name: result.Name) ?? throw new Exception("Things went south");
+            await _userService.CreateUserAsync(result.Name, result.Email);
+            userCheck = await _userService.GetUserAsync(email: result.Email) ?? throw new Exception("Things went south");
         }
         return Ok(_jwtTokenService.CreateToken(userCheck));
     }
@@ -47,6 +47,6 @@ public class AuthController : ControllerBase
             var user = await _userService.GetUserAsync(userId);
             return user is not null ? Ok(_jwtTokenService.CreateToken(user)) : BadRequest();
         }
-        return BadRequest();
+        return Unauthorized();
     }
 }
