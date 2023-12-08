@@ -28,15 +28,16 @@ class ChatHubConnection with ChangeNotifier {
 
   void onReceiveConnectedUsers(Function(List<String>) callback) {
     hubConnection.on('ConnectedUsers', (message) {
-      try {
         List<dynamic> response = json.decode(message!.toString());
         List<String> connectedUsers = List<String>.from(response[0]);
-        print(response);
         callback(connectedUsers);
-      } catch(e) {
-        print(e);
-      }
-        
+    });
+  }
+
+  void onUserConnected(Function(String) callback) {
+    hubConnection.on("UserConnected", (message) {
+      List<dynamic> response = json.decode(message!.toString());
+      callback(response[0]);
     });
   }
 

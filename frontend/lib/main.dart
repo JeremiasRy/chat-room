@@ -13,6 +13,8 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
   scopes: ["https://www.googleapis.com/auth/cloud-platform"]
 );
 
+
+
 void main() {
   runApp(const MyApp());
 }
@@ -40,7 +42,7 @@ class MyApp extends StatelessWidget {
           })
       ],
       child: const MaterialApp(
-        home: ChatPage()
+        home: ChatPage(),
       ),
     );
   }
@@ -58,13 +60,11 @@ class ChatPage extends StatelessWidget {
       body: const ChatPageContent()
     );
   }
-
 }
 
 class ChatPageContent extends StatefulWidget {
-  const ChatPageContent({
-    super.key,
-  });
+
+  const ChatPageContent({super.key});
 
   @override
   State<StatefulWidget> createState() => _ChatPageContentState();
@@ -76,6 +76,7 @@ class _ChatPageContentState extends State<ChatPageContent> {
   List<String> _connectedUsers = [];
   CurrentUser? _currentUser;
   bool _cantAuthorize = false;
+  bool _loggingIn = true;
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
@@ -113,10 +114,11 @@ class _ChatPageContentState extends State<ChatPageContent> {
             _googleSignIn.signInSilently();
           } else {
             setupChatEnvironment();
+            return;
           }
         }
       );
-    }  
+    }
   }
 
   Future<void> setupChatEnvironment() async {
@@ -128,6 +130,16 @@ class _ChatPageContentState extends State<ChatPageContent> {
     final user = await protectedEndpoints.getCurrentUser();
     final messages = await protectedEndpoints.fetchMessages();
     await chat.startConnection();
+
+    chat.onUserConnected((user) {
+      final SnackBar snackBar = SnackBar(
+        behavior: SnackBarBehavior.floating,
+        width: MediaQuery.of(context).size.width * 0.25,
+        content: Text("$user connected"),
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
 
     chat.onReceiveConnectedUsers((connectedUsers) {
       setState(() {
@@ -149,14 +161,19 @@ class _ChatPageContentState extends State<ChatPageContent> {
       _messages = messages;
       _currentUser = user;
       _chat = chat;
+      _loggingIn = false;
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       scrollToLatestItem();
     });
   }
 
-  void _sendMessage(String message) {
-    _chat.sendMessage(message);
+  void _sendMessage() {
+    if (_loggingIn || _textController.text.isEmpty) {
+      return;
+    }
+    _chat.sendMessage(_textController.text);
+    _textController.clear();
   }
 
   void scrollToLatestItem() {
@@ -172,29 +189,33 @@ class _ChatPageContentState extends State<ChatPageContent> {
     return Column(
       children: [
         Expanded(
-          child: ListView.builder(
-            controller: _scrollController,
-            itemCount: _messages.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(_messages[index].name),
-                subtitle: Text(_messages[index].content),
-                trailing: Text(_messages[index].createdAt.toString()),
-              );
-            },
-          ),
+          child: _loggingIn 
+          ? _cantAuthorize 
+            ? const Text("Everything went to sh*t")
+            : const Center(
+              child: CircularProgressIndicator()
+              )
+          : ListView.builder(
+              controller: _scrollController,
+              itemCount: _messages.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(_messages[index].name),
+                  subtitle: Text(_messages[index].content),
+                  trailing: Text(_messages[index].createdAt.toString()),
+                );
+              },
+            ),
         ),
         TextField(
           controller: _textController,
+          enabled: !_loggingIn,
           decoration: const InputDecoration(
             hintText: "Write your message here...",
-            labelText: "user",
           )
         ),
         ElevatedButton(
-          onPressed: () {
-            _sendMessage(_textController.text);
-          },
+          onPressed: _sendMessage,
           child: const Text('Send'),
         ),
       ],

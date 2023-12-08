@@ -40,11 +40,6 @@ public class ChatHub : Hub
         {
             if (await _messageService.CreateMessageAsync(new MessageDTO() { Content = message, UserId = userId }))
             {
-                var serializeOptions = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    WriteIndented = true
-                };
                 var response = MakeResponseToProperJson(new DisplayMessageDTO() { Content = message, Name = ((Claim)httpContext.Items["Name"]!).Value });
                 await Clients.All.SendAsync("ReceiveMessage", response);
             }
@@ -59,7 +54,9 @@ public class ChatHub : Hub
         }
         if (httpContext.Items.ContainsKey("UserId") && Guid.TryParse(httpContext.Items["UserId"]!.ToString(), out Guid userId))
         {
+            
             await _userService.LoginUserAsync(userId, Context.ConnectionId);
+            await Clients.AllExcept(Context.ConnectionId).SendAsync("UserConnected", MakeResponseToProperJson(((Claim)httpContext.Items["Name"]!).Value));
             await NotifyConnectedUsers();
             await base.OnConnectedAsync();
         }
